@@ -1,0 +1,21 @@
+/* Add these styles to your existing CSS */
+.modal form select,
+.modal form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal form textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.expense-category {
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 4px;
+} 
