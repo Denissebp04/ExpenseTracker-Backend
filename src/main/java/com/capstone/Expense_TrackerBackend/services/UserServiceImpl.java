@@ -4,41 +4,16 @@ import com.capstone.Expense_TrackerBackend.dto.LoginRequest;
 import com.capstone.Expense_TrackerBackend.dto.LoginResponse;
 import com.capstone.Expense_TrackerBackend.entity.User;
 import com.capstone.Expense_TrackerBackend.repository.UserRepo;
-import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserServices {
-
+    
     private final UserRepo userRepository;
-
-    @Override
-    public LoginResponse loginUser(LoginRequest loginRequest) {
-        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
-            throw new RuntimeException("Username and password are required");
-        }
-
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-            
-        if (user.getPassword() == null) {
-            throw new RuntimeException("User account is invalid");
-        }
-
-        if (!user.getPassword().equals(loginRequest.getPassword())) {
-            throw new RuntimeException("Incorrect password. Please try again.");
-        }
-        
-        LoginResponse response = new LoginResponse();
-        response.setUserId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setToken("dummy-token");
-        
-        return response;
-    }
 
     @Override
     public User registerUser(User user) {
@@ -59,7 +34,29 @@ public class UserServiceImpl implements UserServices {
         return userRepository.save(user);
     }
 
-    public Optional<User> findByUsername(String username){
+    @Override
+    public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public LoginResponse loginUser(LoginRequest loginRequest) {
+        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+            throw new RuntimeException("Username and password are required");
+        }
+
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (!user.getPassword().equals(loginRequest.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+        
+        LoginResponse response = new LoginResponse();
+        response.setUserId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setToken("dummy-token"); // You can add real JWT token generation here
+        
+        return response;
     }
 }
